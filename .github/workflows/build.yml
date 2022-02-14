@@ -1,0 +1,43 @@
+name: Docker Build
+
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+
+jobs:
+
+  docker-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [linux-arm64, linux-amd64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          platforms: linux/arm64,linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USER }}/sb-${{ github.event.repository.name }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USER }}/sb-${{ github.event.repository.name }}:buildcache,mode=max
