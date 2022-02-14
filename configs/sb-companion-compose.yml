@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+  sb_companion:
+    image: sudobox/sb-companion
+    container_name: sb-companion
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      PGID: 0
+      PUID: 0
+    networks:
+      - sudobox_private
+
+networks:
+  sudobox_private:
+    driver: bridge
+    external: true

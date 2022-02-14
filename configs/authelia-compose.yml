@@ -1,0 +1,67 @@
+version: "3"
+services:
+  auth:
+    container_name: auth
+    image: authelia/authelia:latest
+    expose:
+      - 9091
+    volumes:
+      - /opt/sudobox/appdata/authelia:/config
+    environment:
+      PGID: 0
+      PUID: 0
+    labels:
+      traefik.enable: true
+      traefik.http.routers.auth.entryPoints: https
+      traefik.http.routers.auth.rule: Host(`auth.${domain}`)
+      traefik.http.services.auth.loadbalancer.server.port: 9091
+      # traefik.http.routers.auth.middlewares: auth@file
+    networks:
+      - sudobox
+      - sudobox_private
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - mariadb
+
+  redis:
+    container_name: redis
+    image: bitnami/redis:latest
+    user: root
+    expose:
+      - 6379
+    volumes:
+      - /opt/sudobox/appdata/redis:/bitnami/
+    environment:
+      REDIS_PASSWORD: "${redispassword}"
+    networks:
+      - sudobox_private
+    restart: unless-stopped
+
+  mariadb:
+    container_name: mariadb
+    image: linuxserver/mariadb:latest
+    expose:
+      - 3306
+    volumes:
+      - /opt/sudobox/appdata/mariadb:/config
+    environment:
+      MYSQL_ROOT_PASSWORD: "${mysqlpassword}"
+      MYSQL_ROOT_USER: root
+      MYSQL_DATABASE: authelia
+      MYSQL_USER: authelia
+      MYSQL_PASSWORD: "${mysqlpassword}"
+      PGID: 0
+      PUID: 0
+
+    networks:
+      - sudobox_private
+    restart: unless-stopped
+
+networks:
+  sudobox:
+    driver: bridge
+    external: true
+  sudobox_private:
+    driver: bridge
+    external: true

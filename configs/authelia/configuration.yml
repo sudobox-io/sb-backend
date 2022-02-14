@@ -1,0 +1,88 @@
+---
+theme: dark
+jwt_secret: "${jwtSecret}"
+default_redirection_url: https://${domain}
+
+server:
+  host: 0.0.0.0
+  port: 9091
+  path: ""
+  read_buffer_size: 4096
+  write_buffer_size: 4096
+  enable_pprof: false
+  enable_expvars: false
+  disable_healthcheck: false
+  tls:
+    key: ""
+    certificate: ""
+
+log:
+  level: info
+
+totp:
+  issuer: ${domain}
+  period: 30
+  skew: 1
+
+authentication_backend:
+  disable_reset_password: false
+  refresh_interval: 5m
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 3
+      key_length: 32
+      salt_length: 16
+      memory: 1024
+      parallelism: 8
+
+access_control:
+  default_policy: one_factor
+
+session:
+  name: authelia_session
+  domain: ${domain}
+  same_site: lax
+  secret: "${secretsession}"
+  expiration: 1h
+  inactivity: 5m
+  remember_me_duration: 2M
+  redis:
+    host: redis
+    port: 6379
+    password: "${redispassword}"
+    database_index: 0
+    maximum_active_connections: 10
+    minimum_idle_connections: 0
+
+regulation:
+  max_retries: 3
+  find_time: 10m
+  ban_time: 12h
+
+storage:
+  encryption_key: "${storageencryptionkey}"
+  mysql:
+    host: mariadb
+    port: 3306
+    database: authelia
+    username: authelia
+    password: "${mysqlpassword}"
+
+notifier:
+  disable_startup_check: true
+  smtp:
+    username: YOUR@EMAIL.HERE
+    password: "YOUR_EMAIL_PASSWORD"
+    host: YOUR_SMTP_HOST
+    port: 587
+    sender: YOUR@EMAIL.HERE
+    identifier: localhost
+    subject: "[Authelia] {title}"
+    startup_check_address: test@authelia.com
+    disable_require_tls: false
+    disable_html_emails: false
+    tls:
+      skip_verify: false
+      minimum_version: TLS1.2

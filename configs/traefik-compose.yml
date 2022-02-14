@@ -1,0 +1,41 @@
+version: "3"
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:2.6
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /opt/sudobox/appdata/traefik/:/etc/traefik/
+    networks:
+      - sudobox
+    labels:
+      traefik.http.routers.api.rule: Host(`traefik.${domain}`)
+      traefik.http.routers.api.entryPoints: https
+      traefik.http.routers.api.service: api@internal
+      traefik.enable: true
+    environment:
+      DOCKER_HOST: dockersocket
+      CF_DNS_API_TOKEN: ${cftoken}
+    restart: unless-stopped
+    depends_on:
+      - dockersocket
+
+  dockersocket:
+    container_name: dockersocket
+    image: tecnativa/docker-socket-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - sudobox
+    environment:
+      CONTAINERS: 1
+      POST: 0
+    privileged: true
+    restart: unless-stopped
+
+networks:
+  sudobox:
+    driver: bridge
+    external: true

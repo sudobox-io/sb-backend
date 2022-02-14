@@ -1,0 +1,4 @@
+.env
+node_modules
+compose
+package-lock.json
