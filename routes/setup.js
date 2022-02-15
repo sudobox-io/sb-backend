@@ -72,12 +72,12 @@ router.post("/:name", async (req, res) => {
           email,
         });
 
-        await installApp("traefik-compose.yml", {
+        await installApp("traefik-compose.yml", "traefik", {
           domain,
           cftoken,
         });
 
-        await installApp("authelia-compose.yml", {
+        await installApp("authelia-compose.yml", "authelia", {
           redispassword,
           domain,
           mysqlpassword,
@@ -108,15 +108,15 @@ router.post("/:name", async (req, res) => {
   }
 });
 
-const installApp = async (name, interpolationObj) => {
+const installApp = async (name, dir, interpolationObj) => {
   try {
     const file = await readFile(join(__dirname, `../configs/${name}`), "utf8");
     const convertedFile = await yaml.parse(file);
     const interpolatedFile = interpolation.expand(convertedFile, interpolationObj);
 
-    shell.mkdir("-p", `/compose/${name}`);
-    await writeFile(`${join("/compose", name, "/docker-compose.yml")}`, yaml.stringify(interpolatedFile));
-    const installedApp = await compose.upAll({ cwd: join("/compose", name) });
+    shell.mkdir("-p", `/compose/${dir}`);
+    await writeFile(`${join("/compose", dir, "/docker-compose.yml")}`, yaml.stringify(interpolatedFile));
+    const installedApp = await compose.upAll({ cwd: join("/compose", dir) });
     console.log(installedApp);
     return { error: false, installed: true, message: `successfully installed` };
   } catch (err) {
