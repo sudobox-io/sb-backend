@@ -8,7 +8,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash -
 RUN apt-get -y install nodejs
 RUN mkdir -p /app
 RUN mkdir -p /token
-RUN mkdir -p /app/compose
+RUN mkdir -p /compose
 RUN mkdir -p /appdata
 
 WORKDIR /app
