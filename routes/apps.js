@@ -66,8 +66,10 @@ router.post("/", async (req, res) => {
 
     config.services = tempConfig;
 
-    await writeFile(`${join(__dirname, `../compose/docker-compose.yml`)}`, yaml.stringify(config));
-    compose.upAll({ cwd: join(__dirname, "../compose/") }).then(
+    shell.mkdir("-p", join(__dirname, `../compose/${composeConfigFile.data.results.name}`));
+    await writeFile(`${join(__dirname, `../compose/${composeConfigFile.data.results.name}/docker-compose.yml`)}`, yaml.stringify(config));
+
+    compose.upAll({ cwd: join(__dirname, `../compose/${composeConfigFile.data.results.name}`) }).then(
       () => res.json({ error: false, installed: true, message: `successfully installed` }),
       (err) => {
         console.log("Something went wrong:", err);
