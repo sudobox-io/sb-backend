@@ -3,6 +3,7 @@ const fs = require("fs");
 const { promisify } = require("util");
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
+const shell = require("shelljs");
 
 const argon2 = require("argon2");
 const yaml = require("yaml");
@@ -128,6 +129,7 @@ const installDependents = async (dir, name, interpolationObj) => {
   const file = await readFile(join(__dirname, `../configs/${dir}/${name}`), "utf8");
   const convertedFile = await yaml.parse(file);
   const interpolatedFile = interpolation.expand(convertedFile, interpolationObj);
+  shell.mkdir("-p", `/appdata/${name}`);
   await writeFile(`${join("/appdata/", dir, name)}`, yaml.stringify(interpolatedFile));
 };
 
