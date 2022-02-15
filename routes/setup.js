@@ -108,12 +108,14 @@ router.post("/:name", async (req, res) => {
 });
 
 const installApp = async (name, interpolationObj) => {
-  const file = await readFile(join(__dirname, `../configs/${name}`), "utf8");
-  const convertedFile = await yaml.parse(file);
-  const interpolatedFile = interpolation.expand(convertedFile, interpolationObj);
-  await writeFile(`${join(__dirname, `../compose/docker-compose.yml`)}`, yaml.stringify(interpolatedFile));
   try {
-    const installedApp = await compose.upAll({ cwd: join(__dirname, "../compose/") });
+    const file = await readFile(join(__dirname, `../configs/${name}`), "utf8");
+    const convertedFile = await yaml.parse(file);
+    const interpolatedFile = interpolation.expand(convertedFile, interpolationObj);
+
+    shell.mkdir("-p", `/compose/${name}`);
+    await writeFile(`${join("/compose", name, "/docker-compose.yml")}`, yaml.stringify(interpolatedFile));
+    const installedApp = await compose.upAll({ cwd: join("/compose", name) });
     console.log(installedApp);
     return { error: false, installed: true, message: `successfully installed` };
   } catch (err) {
