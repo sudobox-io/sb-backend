@@ -94,7 +94,7 @@ router.post("/:name", async (req, res) => {
       res.json({ error: false });
       break;
     case "sb-companion":
-      await installApp("sb-companion-compose.yml");
+      await installApp("sb-companion-compose.yml", "sb-companion");
       res.json({ error: false });
       break;
     case "sb-uploader":
@@ -129,7 +129,7 @@ const installDependents = async (dir, name, interpolationObj) => {
   const file = await readFile(join(__dirname, `../configs/${dir}/${name}`), "utf8");
   const convertedFile = await yaml.parse(file);
   const interpolatedFile = interpolation.expand(convertedFile, interpolationObj);
-  shell.mkdir("-p", `/appdata/${name}`);
+  shell.mkdir("-p", `/appdata/${dir}`);
   await writeFile(`${join("/appdata/", dir, name)}`, yaml.stringify(interpolatedFile));
 };
 
