@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   sb_companion:
-    image: sudobox/sb-companion
+    image: ghcr.io/sudobox/sb-companion
     container_name: sb-companion
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
