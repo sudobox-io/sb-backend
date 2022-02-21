@@ -94,7 +94,7 @@ router.post("/:name", async (req, res) => {
       res.json({ error: false });
       break;
     case "sb-companion":
-      await installApp("sb-companion-compose.yml", "sb-companion");
+      await installApp("sb-companion-compose.yml", "sb-companion", {});
       res.json({ error: false });
       break;
     case "sb-uploader":
