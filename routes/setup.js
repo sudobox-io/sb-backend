@@ -29,6 +29,7 @@ router.post("/", async (req, res) => {
 
 router.post("/:name", async (req, res) => {
   const name = req.params.name;
+  const { domain, cftoken, redispassword, mysqlpassword, storageencryptionkey, secretsession, jwtSecret, email, username, password, sso } = req.body;
 
   console.log({ name });
 
@@ -53,8 +54,6 @@ router.post("/:name", async (req, res) => {
       break;
     case "traefik_authelia":
       try {
-        const { domain, cftoken, redispassword, mysqlpassword, storageencryptionkey, secretsession, jwtSecret, email, username, password, sso } = req.body;
-
         await installDependents("traefik", "traefik.yml", {
           domain,
           email,
