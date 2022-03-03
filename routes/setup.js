@@ -19,10 +19,10 @@ router.post("/", async (req, res) => {
 
   const apps = [];
 
-  domain !== "" && sso ? apps.push("traefik_authelia") : storageType.toLowerCase() === "cloud" && domain !== "" && apps.push("traefik");
   // if (storageType.toLowerCase() === "cloud") ["sb-uploader", "sb-mount"].forEach((item) => apps.push(item));
   if (cf_email !== "" && cf_api_key !== "") apps.push("sb-companion");
   if (dashboard) apps.push("sb-dashboard");
+  domain !== "" && sso ? apps.push("traefik_authelia") : storageType.toLowerCase() === "cloud" && domain !== "" && apps.push("traefik");
 
   res.json({ results: apps });
 });

@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  sb_companion:
+    image: ghcr.io/sudobox-io/sb-dashboard
+    container_name: sb-dashboard
+    labels:
+      sb-companion.enabled: true
+      sb-companion.domain: ${domain}
+      traefik.enable: true
+      traefik.http.routers.auth.entryPoints: https
+      traefik.http.routers.auth.rule: Host(`dashboard.${domain}`)
+      traefik.http.services.auth.loadbalancer.server.port: 5850
+      traefik.http.routers.auth.middlewares: ${protection}
+    networks:
+      - sudobox_private
+      - sudobox
+
+networks:
+  sudobox_private:
+    driver: bridge
+    external: true
+  sudobox:
+    driver: bridge
+    external: true

@@ -11,11 +11,12 @@ services:
       PGID: 0
       PUID: 0
     labels:
+      sb-companion.enabled: true
+      sb-companion.domain: ${domain}
       traefik.enable: true
       traefik.http.routers.auth.entryPoints: https
       traefik.http.routers.auth.rule: Host(`auth.${domain}`)
       traefik.http.services.auth.loadbalancer.server.port: 9091
-      # traefik.http.routers.auth.middlewares: auth@file
     networks:
       - sudobox
       - sudobox_private
