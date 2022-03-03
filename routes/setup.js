@@ -20,7 +20,7 @@ router.post("/", async (req, res) => {
   const apps = [];
 
   domain !== "" && sso ? apps.push("traefik_authelia") : storageType.toLowerCase() === "cloud" && domain !== "" && apps.push("traefik");
-  if (storageType.toLowerCase() === "cloud") ["sb-uploader", "sb-mount"].forEach((item) => apps.push(item));
+  // if (storageType.toLowerCase() === "cloud") ["sb-uploader", "sb-mount"].forEach((item) => apps.push(item));
   if (cf_email !== "" && cf_api_key !== "") apps.push("sb-companion");
   if (dashboard) apps.push("sb-dashboard");
 
@@ -53,7 +53,7 @@ router.post("/:name", async (req, res) => {
       break;
     case "traefik_authelia":
       try {
-        const { domain, cftoken, redispassword, mysqlpassword, storageencryptionkey, secretsession, jwtSecret, email, username, password } = req.body;
+        const { domain, cftoken, redispassword, mysqlpassword, storageencryptionkey, secretsession, jwtSecret, email, username, password, sso } = req.body;
 
         await installDependents("traefik", "traefik.yml", {
           domain,
@@ -104,11 +104,14 @@ router.post("/:name", async (req, res) => {
       }
       break;
     case "sb-dashboard":
-      // await installApp("sb-dashboard-compose.yml");
+      // await installApp("sb-dashboard-compose.yml", "sb-companion", {
+      //   domain,
+      //   protection: sso == true ? "auth@file" : "",
+      // });
       res.json({ error: false });
       break;
     case "sb-companion":
-      await installApp("sb-companion-compose.yml", "sb-companion", {});
+      await installApp("sb-companion-compose.yml", "sb-companion", { domain });
       res.json({ error: false });
       break;
     case "sb-uploader":
@@ -123,6 +126,13 @@ router.post("/:name", async (req, res) => {
 });
 
 const installApp = async (name, dir, interpolationObj) => {
+  // Installs new core app, and injects user defined variables
+  // Reads from file
+  // Converts file to YAML
+  // Injects user defined variables
+  // Creates new folder for the app
+  // Installs app
+
   try {
     const file = await readFile(join(__dirname, `../configs/${name}`), "utf8");
     const convertedFile = await yaml.parse(file);
