@@ -27,15 +27,35 @@ totp:
 authentication_backend:
   disable_reset_password: false
   refresh_interval: 5m
-  file:
-    path: /config/users_database.yml
-    password:
-      algorithm: argon2id
-      iterations: 3
-      key_length: 32
-      salt_length: 16
-      memory: 1024
-      parallelism: 8
+  # file:
+  #   path: /config/users_database.yml
+  #   password:
+  #     algorithm: argon2id
+  #     iterations: 3
+  #     key_length: 32
+  #     salt_length: 16
+  #     memory: 1024
+  #     parallelism: 8
+  ldap:
+    implementation: custom
+    url: ldap://openldap
+    timeout: 5s
+    start_tls: false
+    tls:
+      server_name: ${domain}
+      skip_verify: false
+      minimum_version: TLS1.2
+    base_dn: DC=${basedomain},{domaintld}
+    username_attribute: uid
+    additional_users_dn: ou=users
+    users_filter: (&({username_attribute}={input})(objectClass=person))
+    additional_groups_dn: ou=groups
+    groups_filter: (&(member={dn})(objectClass=groupOfNames))
+    group_name_attribute: cn
+    mail_attribute: mail
+    display_name_attribute: ${username}
+    user: CN=${username},DC=${basedomain},{domaintld}
+    password: "${password}"
 
 access_control:
   default_policy: one_factor

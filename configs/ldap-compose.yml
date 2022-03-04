@@ -1,0 +1,46 @@
+version: "3"
+services:
+  openldap:
+    container_name: openldap
+    image: osixia/openldap:latest
+    expose:
+      - 389
+      - 636
+    volumes:
+      - /opt/sudobox/appdata/openldap/certificates:/container/service/slapd/assets/certs
+      - /opt/sudobox/appdata/openldap/slapd/database:/var/lib/ldap
+      - /opt/sudobox/appdata/openldap/slapd/config:/etc/ldap/slapd.d
+    environment:
+      LDAP_ORGANISATION: "${domain}" # Server Name
+      LDAP_DOMAIN: "${domain}" # Domain Name
+      LDAP_ADMIN_USERNAME: "${username}" # Authelia Username
+      LDAP_ADMIN_PASSWORD: "${password}" # authelia Password
+      LDAP_CONFIG_PASSWORD: "${password}"
+    networks:
+      - sudobox
+    restart: unless-stopped
+
+  ldapadmin:
+    container_name: ldapadmin
+    image: osixia/phpldapadmin:latest
+    ports:
+      - "8399:80"
+    labels:
+      traefik.enable: true
+      traefik.http.routers.ldapadmin.entryPoints: https
+      traefik.http.routers.ldapadmin.middlewares: auth@file
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=openldap
+      - PHPLDAPADMIN_HTTPS=false
+    volumes:
+      - /opt/sudobox/appdata/openldap/admin:/var/www/phpldapadmin # used to be able to make edits to the config file
+    depends_on:
+      - openldap
+    networks:
+      - sudobox
+    restart: unless-stopped
+
+networks:
+  sudobox:
+    driver: bridge
+    external: true

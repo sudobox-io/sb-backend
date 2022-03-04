@@ -4,15 +4,17 @@ const { promisify } = require("util");
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const shell = require("shelljs");
+const tildExtract = require("tld-extract");
 
 const argon2 = require("argon2");
 const yaml = require("yaml");
 const { join } = require("path");
-const SettingdDB = require("../models/Settings");
-const Dockerode = require("dockerode");
-const docker = new Dockerode({ socketPath: "/var/run/docker.sock" });
 const compose = require("docker-compose");
+const Dockerode = require("dockerode");
 const { interpolation } = require("interpolate-json");
+
+const docker = new Dockerode({ socketPath: "/var/run/docker.sock" });
+const SettingdDB = require("../models/Settings");
 
 router.post("/", async (req, res) => {
   const { domain, cf_email, cf_api_key, storageType, sso, dashboard } = req.body;
@@ -61,6 +63,18 @@ router.post("/:name", async (req, res) => {
         await installDependents("traefik", "fileConfig.yml", {
           domain,
         });
+
+        const extractedValues = tldExtract(domain);
+        let basedomain = extractedValues.domain;
+        let tld = extractedValues.tld;
+        let domaintld =
+          tld.split(".").length > 1
+            ? tld
+                .split(".")
+                .map((value) => `DC=${value}`)
+                .join(",")
+            : `DC=${tld}`;
+
         await installDependents("authelia", "configuration.yml", {
           domain,
           redispassword,
@@ -68,22 +82,32 @@ router.post("/:name", async (req, res) => {
           mysqlpassword,
           secretsession,
           jwtSecret,
-        });
-
-        const hashedPassword = await argon2.hash(password, {
-          type: argon2.argon2id,
-          memoryCost: 1024,
-          hashLength: 32,
-          parallelism: 8,
-          saltLength: 16,
-          timeCost: 3,
-        });
-
-        await installDependents("authelia", "users_database.yml", {
+          basedomain,
+          domaintld,
           username,
-          hashedPassword,
-          email,
+          password,
         });
+
+        await installApp("ldap-compose.yml", "openldap", {
+          domain,
+          username,
+          password,
+        });
+
+        // const hashedPassword = await argon2.hash(password, {
+        //   type: argon2.argon2id,
+        //   memoryCost: 1024,
+        //   hashLength: 32,
+        //   parallelism: 8,
+        //   saltLength: 16,
+        //   timeCost: 3,
+        // });
+
+        // await installDependents("authelia", "users_database.yml", {
+        //   username,
+        //   hashedPassword,
+        //   email,
+        // });
 
         await installApp("traefik-compose.yml", "traefik", {
           domain,
