@@ -11,6 +11,8 @@
     "generate-password": "^1.7.0",
     "helmet": "^4.6.0",
     "interpolate-json": "^2.2.2",
+    "ldapjs": "^2.3.2",
+    "ldif": "^0.5.1",
     "mongoose": "^5.13.3",
     "morgan": "^1.10.0",
     "nedb": "^1.8.0",

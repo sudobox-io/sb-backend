@@ -5,6 +5,7 @@ const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const shell = require("shelljs");
 const { parse_host } = require("tld-extract");
+const ldap = require("ldapjs");
 
 const argon2 = require("argon2");
 const yaml = require("yaml");
@@ -93,6 +94,14 @@ router.post("/:name", async (req, res) => {
           password,
         });
 
+        const client = ldap.createClient({
+          url: ["ldap://openldap:389"],
+        });
+
+        client.on("error", (err) => {
+          console.log("There was an error creating a client object with openldap");
+        });
+
         // const hashedPassword = await argon2.hash(password, {
         //   type: argon2.argon2id,
         //   memoryCost: 1024,
@@ -117,6 +126,23 @@ router.post("/:name", async (req, res) => {
           redispassword,
           domain,
           mysqlpassword,
+        });
+
+        client.bind("cn=admin", password, (err) => {
+          if (err) {
+            console.log("There was an error authenticating with the openldap server");
+          } else {
+            const entry = {
+              sn: "sudobox",
+              userPassword: password,
+              email: email,
+              objectclass: "inetOrgPerson",
+            };
+
+            client.add(`cn=${username}`, entry, (err) => {
+              assert.ifError(err);
+            });
+          }
         });
 
         res.json({ error: false });
