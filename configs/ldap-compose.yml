@@ -26,6 +26,8 @@ services:
     ports:
       - "8399:80"
     labels:
+      sb-companion.enabled: true
+      sb-companion.domain: ${domain}
       traefik.enable: true
       traefik.http.routers.ldapadmin.entryPoints: https
       traefik.http.routers.ldapadmin.middlewares: auth@file
