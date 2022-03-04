@@ -95,7 +95,7 @@ router.post("/:name", async (req, res) => {
         });
 
         const client = ldap.createClient({
-          url: ["ldap://openldap:389"],
+          url: ["ldap://openldap"],
         });
 
         client.on("error", (err) => {
