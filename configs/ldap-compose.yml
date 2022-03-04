@@ -13,7 +13,6 @@ services:
     environment:
       LDAP_ORGANISATION: "${domain}" # Server Name
       LDAP_DOMAIN: "${domain}" # Domain Name
-      LDAP_ADMIN_USERNAME: "${username}" # Authelia Username
       LDAP_ADMIN_PASSWORD: "${password}" # authelia Password
       LDAP_CONFIG_PASSWORD: "${password}"
     networks:

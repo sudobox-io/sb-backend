@@ -45,7 +45,7 @@ authentication_backend:
       server_name: ${domain}
       skip_verify: false
       minimum_version: TLS1.2
-    base_dn: DC=${basedomain},{domaintld}
+    base_dn: DC=${basedomain},${domaintld}
     username_attribute: uid
     additional_users_dn: ou=users
     users_filter: (&({username_attribute}={input})(objectClass=person))
@@ -53,8 +53,8 @@ authentication_backend:
     groups_filter: (&(member={dn})(objectClass=groupOfNames))
     group_name_attribute: cn
     mail_attribute: mail
-    display_name_attribute: ${username}
-    user: CN=admin,DC=${basedomain},{domaintld}
+    display_name_attribute: displayname
+    user: CN=admin,DC=${basedomain},${domaintld}
     password: "${password}"
 
 access_control:
