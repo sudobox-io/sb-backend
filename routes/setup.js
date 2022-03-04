@@ -130,6 +130,7 @@ router.post("/:name", async (req, res) => {
 
         client.bind("cn=admin", password, (err) => {
           if (err) {
+            console.log({ err });
             console.log("There was an error authenticating with the openldap server");
           } else {
             const entry = {
