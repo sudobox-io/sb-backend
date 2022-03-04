@@ -4,7 +4,7 @@ const { promisify } = require("util");
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const shell = require("shelljs");
-const tldExtract = require("tld-extract");
+const { parse_host } = require("tld-extract");
 
 const argon2 = require("argon2");
 const yaml = require("yaml");
@@ -32,8 +32,6 @@ router.post("/", async (req, res) => {
 router.post("/:name", async (req, res) => {
   const name = req.params.name;
   const { domain, cftoken, redispassword, mysqlpassword, storageencryptionkey, secretsession, jwtSecret, email, username, password, sso } = req.body;
-
-  console.log({ name });
 
   switch (name) {
     case "traefik":
@@ -64,8 +62,9 @@ router.post("/:name", async (req, res) => {
           domain,
         });
 
-        const extractedValues = tldExtract(domain);
-        let basedomain = extractedValues.domain;
+        const extractedValues = parse_host(domain);
+
+        let basedomain = extractedValues.domain.split(".")[0];
         let tld = extractedValues.tld;
         let domaintld =
           tld.split(".").length > 1
