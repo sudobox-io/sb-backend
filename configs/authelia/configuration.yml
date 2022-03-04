@@ -54,7 +54,7 @@ authentication_backend:
     group_name_attribute: cn
     mail_attribute: mail
     display_name_attribute: ${username}
-    user: CN=${username},DC=${basedomain},{domaintld}
+    user: CN=admin,DC=${basedomain},{domaintld}
     password: "${password}"
 
 access_control:
