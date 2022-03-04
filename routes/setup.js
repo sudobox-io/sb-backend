@@ -4,7 +4,7 @@ const { promisify } = require("util");
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const shell = require("shelljs");
-const tildExtract = require("tld-extract");
+const tldExtract = require("tld-extract");
 
 const argon2 = require("argon2");
 const yaml = require("yaml");
