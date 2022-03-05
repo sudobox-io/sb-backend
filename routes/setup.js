@@ -128,7 +128,7 @@ router.post("/:name", async (req, res) => {
           mysqlpassword,
         });
 
-        client.bind("cn=admin", password, (err) => {
+        client.bind(`cn=admin,dc=${basedomain},${domaintld}`, password, (err) => {
           if (err) {
             console.log({ err });
             console.log("There was an error authenticating with the openldap server");
@@ -136,12 +136,16 @@ router.post("/:name", async (req, res) => {
             const entry = {
               sn: "sudobox",
               userPassword: password,
-              email: email,
+              mail: email,
               objectclass: "inetOrgPerson",
             };
 
-            client.add(`cn=${username}`, entry, (err) => {
-              assert.ifError(err);
+            client.add(`cn=${username},dc=${basedomain},${domaintld}`, entry, (err) => {
+              if (err) {
+                console.log("user error: " + err);
+              } else {
+                console.log("Created user successfully!");
+              }
             });
           }
         });
