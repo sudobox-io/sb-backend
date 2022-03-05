@@ -216,7 +216,8 @@ const addLdapUser = async (username, password, basedomain, domaintld, email, cli
     sn: "sudobox",
     userPassword: password,
     mail: email,
-    objectclass: "inetOrgPerson",
+    objectclass: ["inetOrgPerson", "top"],
+    uid: username,
   };
 
   client.add(`cn=${username},dc=${basedomain},${domaintld}`, entry, (err) => {
