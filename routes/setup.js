@@ -194,7 +194,7 @@ const ldapbind = async (username, password, basedomain, domaintld, email) => {
         console.log("There was an error creating a client object with openldap");
       });
 
-      client.bind(`cn=admin,dc=${basedomain},${domaintld}`, password, (err) => {
+      client.bind(`cn=admin,dc=${basedomain},${domaintld}`, password, async (err) => {
         if (err) {
           console.log({ err });
           console.log("There was an error authenticating with the openldap server");
