@@ -94,14 +94,6 @@ router.post("/:name", async (req, res) => {
           password,
         });
 
-        const client = ldap.createClient({
-          url: ["ldap://openldap"],
-        });
-
-        client.on("error", (err) => {
-          console.log("There was an error creating a client object with openldap");
-        });
-
         // const hashedPassword = await argon2.hash(password, {
         //   type: argon2.argon2id,
         //   memoryCost: 1024,
@@ -128,27 +120,7 @@ router.post("/:name", async (req, res) => {
           mysqlpassword,
         });
 
-        client.bind(`cn=admin,dc=${basedomain},${domaintld}`, password, (err) => {
-          if (err) {
-            console.log({ err });
-            console.log("There was an error authenticating with the openldap server");
-          } else {
-            const entry = {
-              sn: "sudobox",
-              userPassword: password,
-              mail: email,
-              objectclass: "inetOrgPerson",
-            };
-
-            client.add(`cn=${username},dc=${basedomain},${domaintld}`, entry, (err) => {
-              if (err) {
-                console.log("user error: " + err);
-              } else {
-                console.log("Created user successfully!");
-              }
-            });
-          }
-        });
+        ldapbind(username, password, basedomain, domaintld, email);
 
         res.json({ error: false });
       } catch (err) {
@@ -208,6 +180,54 @@ const installDependents = async (dir, name, interpolationObj) => {
   const interpolatedFile = interpolation.expand(convertedFile, interpolationObj);
   shell.mkdir("-p", `/appdata/${dir}`);
   await writeFile(`${join("/appdata/", dir, name)}`, yaml.stringify(interpolatedFile));
+};
+
+const ldapbind = (username, password, basedomain, domaintld, email) => {
+  let loop = true;
+  do {
+    try {
+      const client = ldap.createClient({
+        url: ["ldap://openldap"],
+      });
+
+      client.on("error", (err) => {
+        console.log("There was an error creating a client object with openldap");
+      });
+
+      client.bind(`cn=admin,dc=${basedomain},${domaintld}`, password, (err) => {
+        if (err) {
+          console.log({ err });
+          console.log("There was an error authenticating with the openldap server");
+        } else {
+          loop = false;
+          addLdapUser(username, password, basedomain, domaintld, email);
+        }
+      });
+    } catch (err) {
+      console.log("Waiting for openldap server to start...");
+      console.log("Retrying in 10 seconds");
+      setTimeout(() => {
+        console.log("Retrying");
+      }, 10000);
+    }
+  } while (loop);
+};
+
+const addLdapUser = (username, password, basedomain, domaintld, email) => {
+  const entry = {
+    sn: "sudobox",
+    userPassword: password,
+    mail: email,
+    objectclass: "inetOrgPerson",
+  };
+
+  client.add(`cn=${username},dc=${basedomain},${domaintld}`, entry, (err) => {
+    if (err) {
+      console.log("user error: " + err);
+    } else {
+      console.log("Created user successfully!");
+    }
+  });
 };
 
 module.exports = router;
