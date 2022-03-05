@@ -187,7 +187,7 @@ const ldapbind = async (username, password, basedomain, domaintld, email) => {
   await sleep(10000);
   try {
     const client = ldap.createClient({
-      url: ["ldap://openldap:389"],
+      url: ["ldap://openldap"],
     });
 
     client.on("error", (err) => {

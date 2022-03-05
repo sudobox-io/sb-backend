@@ -17,6 +17,7 @@ services:
       LDAP_CONFIG_PASSWORD: "${password}"
     networks:
       - sudobox
+      - sudobox_private
     restart: unless-stopped
 
   ldapadmin:
@@ -43,5 +44,8 @@ services:
 
 networks:
   sudobox:
+    driver: bridge
+    external: true
+  sudobox_private:
     driver: bridge
     external: true
