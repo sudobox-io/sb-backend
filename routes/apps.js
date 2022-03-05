@@ -55,7 +55,7 @@ router.post("/", async (req, res) => {
       const replaceValues = {
         name: tempService.container_name,
         domain: `${tempService.container_name.toLowerCase()}.${domain.value}`,
-        container_port: tempService.ports[0].split(":")[1],
+        container_port: tempService.ports.length >= 1 ? tempService.ports[0].split(":")[1] : "",
       };
 
       if (authelia.value == "true") replaceValues["protection"] = "auth@file";
