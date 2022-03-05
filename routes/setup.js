@@ -201,7 +201,7 @@ const ldapbind = async (username, password, basedomain, domaintld, email) => {
         ldapbind(username, password, basedomain, domaintld, email);
       } else {
         loop = false;
-        addLdapUser(username, password, basedomain, domaintld, email);
+        addLdapUser(username, password, basedomain, domaintld, email, client);
       }
     });
   } catch (err) {
@@ -211,7 +211,7 @@ const ldapbind = async (username, password, basedomain, domaintld, email) => {
   }
 };
 
-const addLdapUser = async (username, password, basedomain, domaintld, email) => {
+const addLdapUser = async (username, password, basedomain, domaintld, email, client) => {
   const entry = {
     sn: "sudobox",
     userPassword: password,
