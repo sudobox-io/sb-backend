@@ -198,6 +198,7 @@ const ldapbind = (username, password, basedomain, domaintld, email) => {
         if (err) {
           console.log({ err });
           console.log("There was an error authenticating with the openldap server");
+          await sleep(10000);
         } else {
           loop = false;
           addLdapUser(username, password, basedomain, domaintld, email);
@@ -206,9 +207,7 @@ const ldapbind = (username, password, basedomain, domaintld, email) => {
     } catch (err) {
       console.log("Waiting for openldap server to start...");
       console.log("Retrying in 10 seconds");
-      setTimeout(() => {
-        console.log("Retrying");
-      }, 10000);
+      await sleep(10000);
     }
   } while (loop);
 };
@@ -229,5 +228,11 @@ const addLdapUser = (username, password, basedomain, domaintld, email) => {
     }
   });
 };
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 module.exports = router;
