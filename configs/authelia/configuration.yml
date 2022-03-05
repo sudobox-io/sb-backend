@@ -47,7 +47,9 @@ authentication_backend:
       minimum_version: TLS1.2
     base_dn: DC=${basedomain},${domaintld}
     username_attribute: uid
+    additional_users_dn: ou=users
     users_filter: (&({username_attribute}={input})(objectClass=person))
+    additional_groups_dn: ou=groups
     groups_filter: (&(member={dn})(objectClass=groupOfNames))
     group_name_attribute: cn
     mail_attribute: mail
