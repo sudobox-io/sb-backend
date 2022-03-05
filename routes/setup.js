@@ -182,7 +182,7 @@ const installDependents = async (dir, name, interpolationObj) => {
   await writeFile(`${join("/appdata/", dir, name)}`, yaml.stringify(interpolatedFile));
 };
 
-const ldapbind = (username, password, basedomain, domaintld, email) => {
+const ldapbind = async (username, password, basedomain, domaintld, email) => {
   let loop = true;
   do {
     try {
@@ -212,7 +212,7 @@ const ldapbind = (username, password, basedomain, domaintld, email) => {
   } while (loop);
 };
 
-const addLdapUser = (username, password, basedomain, domaintld, email) => {
+const addLdapUser = async (username, password, basedomain, domaintld, email) => {
   const entry = {
     sn: "sudobox",
     userPassword: password,
@@ -229,10 +229,10 @@ const addLdapUser = (username, password, basedomain, domaintld, email) => {
   });
 };
 
-function sleep(ms) {
+const sleep = async (ms) => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
-}
+};
 
 module.exports = router;
