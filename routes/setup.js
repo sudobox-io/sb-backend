@@ -183,33 +183,32 @@ const installDependents = async (dir, name, interpolationObj) => {
 };
 
 const ldapbind = async (username, password, basedomain, domaintld, email) => {
-  let loop = true;
-  do {
-    try {
-      const client = ldap.createClient({
-        url: ["ldap://openldap"],
-      });
+  console.log("Waiting...");
+  await sleep(10000);
+  try {
+    const client = ldap.createClient({
+      url: ["ldap://openldap"],
+    });
 
-      client.on("error", (err) => {
-        console.log("There was an error creating a client object with openldap");
-      });
+    client.on("error", (err) => {
+      console.log("There was an error creating a client object with openldap");
+    });
 
-      client.bind(`cn=admin,dc=${basedomain},${domaintld}`, password, async (err) => {
-        if (err) {
-          console.log({ err });
-          console.log("There was an error authenticating with the openldap server");
-          await sleep(10000);
-        } else {
-          loop = false;
-          addLdapUser(username, password, basedomain, domaintld, email);
-        }
-      });
-    } catch (err) {
-      console.log("Waiting for openldap server to start...");
-      console.log("Retrying in 10 seconds");
-      await sleep(10000);
-    }
-  } while (loop);
+    client.bind(`cn=admin,dc=${basedomain},${domaintld}`, password, async (err) => {
+      if (err) {
+        console.log({ err });
+        console.log("There was an error authenticating with the openldap server");
+        ldapbind(username, password, basedomain, domaintld, email);
+      } else {
+        loop = false;
+        addLdapUser(username, password, basedomain, domaintld, email);
+      }
+    });
+  } catch (err) {
+    console.log("Waiting for openldap server to start...");
+    console.log("Retrying in 10 seconds");
+    ldapbind(username, password, basedomain, domaintld, email);
+  }
 };
 
 const addLdapUser = async (username, password, basedomain, domaintld, email) => {
