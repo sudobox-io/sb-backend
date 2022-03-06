@@ -33,7 +33,7 @@ router.get("/:container_id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { id } = req?.body;
+    const { id, questions } = req?.body;
     const composeConfigFile = await axios({
       method: "get",
       url: `https://api.sudobox.io/v1/apps/${id}`,
@@ -43,8 +43,6 @@ router.post("/", async (req, res) => {
     const domain = await SettingsDB.findOne({ name: "domain" });
     const authelia = await SettingsDB.findOne({ name: "authelia" });
 
-    console.log(domain);
-
     const config = composeConfigFile.data.results.config;
 
     const tempConfig = {};
@@ -52,11 +50,15 @@ router.post("/", async (req, res) => {
     for (const [key, value] of Object.entries(config.services)) {
       let tempService = { ...value };
 
-      const replaceValues = {
+      let replaceValues = {
         name: tempService.container_name,
         domain: `${tempService.container_name.toLowerCase()}.${domain.value}`,
         container_port: tempService.ports.length >= 1 ? tempService.ports[0].split(":")[1] : "",
       };
+
+      for (const [key, value] of Object.entries(questions)) {
+        replaceValues[key] = value;
+      }
 
       if (authelia.value == "true") replaceValues["protection"] = "auth@file";
 

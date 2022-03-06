@@ -200,7 +200,6 @@ const ldapbind = async (username, password, basedomain, domaintld, email) => {
         console.log("There was an error authenticating with the openldap server");
         ldapbind(username, password, basedomain, domaintld, email);
       } else {
-        loop = false;
         addLdapUser(username, password, basedomain, domaintld, email, client);
       }
     });
