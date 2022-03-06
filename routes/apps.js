@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
         container_port: tempService.ports.length >= 1 ? tempService.ports[0].split(":")[1] : "",
       };
 
-      if (question && Object.keys(questions).length !== 0)
+      if (questions && Object.keys(questions).length !== 0)
         for (const [key, value] of Object.entries(questions)) {
           replaceValues[key] = value;
         }
