@@ -3,7 +3,6 @@
   "dependencies": {
     "argon2": "^0.28.4",
     "axios": "^0.21.2",
-    "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "docker-compose": "^0.23.13",
     "dockerode": "^3.3.0",
