@@ -18,7 +18,7 @@ services:
     environment:
       DOCKER_HOST: dockersocket
       CF_API_EMAIL: ${email}
-      CF_DNS_API_TOKEN: ${cftoken}
+      CF_API_KEY: ${cftoken}
     restart: unless-stopped
     depends_on:
       - dockersocket
