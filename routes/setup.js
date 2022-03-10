@@ -7,8 +7,6 @@ const shell = require("shelljs");
 const { parse_host } = require("tld-extract");
 const ldap = require("ldapjs");
 const pass = require("pass");
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
 
 const argon2 = require("argon2");
 const yaml = require("yaml");
@@ -57,7 +55,7 @@ router.post("/:name", async (req, res) => {
         };
 
         if (!sso) {
-          const hash = await bcrypt.hash(password, saltRounds);
+          const hash = await hashPassword(password);
           traefikInterpolationOptions["AUTH"] = `${username}:${hash.replace(/\$/g, "$$$$")}`;
         }
 
@@ -130,12 +128,6 @@ router.post("/:name", async (req, res) => {
           cftoken,
           email,
         };
-
-        if (sso) {
-          bcrypt.hash(password, saltRounds, function (err, hash) {
-            traefikInterpolationOptions["AUTH"] = `${username}:${hash}`;
-          });
-        }
 
         await installApp("traefik-compose.yml", "traefik", traefikInterpolationOptions, true, sso);
 
@@ -266,6 +258,15 @@ const addLdapUser = async (username, password, basedomain, domaintld, email, cli
 const sleep = async (ms) => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
+  });
+};
+
+const hashPassword = async (password) => {
+  return new Promise((resolve, reject) => {
+    pass.generate(password, (err, hash) => {
+      if (err) reject(err);
+      if (!err) resolve(hash);
+    });
   });
 };
 
