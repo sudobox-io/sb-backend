@@ -53,8 +53,23 @@ router.post("/", async (req, res) => {
       let replaceValues = {
         name: tempService.container_name,
         domain: `${tempService.container_name.toLowerCase()}.${domain.value}`,
-        container_port: tempService.ports.length >= 1 ? tempService.ports[0].split(":")[1] : "",
       };
+
+      if (tempService.ports.length >= 1) {
+        let filteredPorts = tempService.ports.filter((port) => port.webui === true);
+
+        let newPorts = [];
+
+        if (filteredPorts.length >= 1) {
+          replaceValues["container_port"] = filteredPorts[0].container;
+        } else {
+          replaceValues["container_port"] = tempService.ports[0].container;
+        }
+
+        tempService.ports = tempService.ports.filter((port) => !port.private).map((port2) => `${port2.host}:${port2.container}`);
+
+        if (tempService.ports.length === 0) delete tempService["ports"];
+      }
 
       if (questions && Object.keys(questions).length !== 0)
         for (const [key, value] of Object.entries(questions)) {

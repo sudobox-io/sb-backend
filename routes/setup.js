@@ -6,6 +6,9 @@ const writeFile = promisify(fs.writeFile);
 const shell = require("shelljs");
 const { parse_host } = require("tld-extract");
 const ldap = require("ldapjs");
+const pass = require("pass");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 const argon2 = require("argon2");
 const yaml = require("yaml");
@@ -34,6 +37,8 @@ router.post("/:name", async (req, res) => {
   const name = req.params.name;
   const { domain, cftoken, redispassword, mysqlpassword, storageencryptionkey, secretsession, jwtSecret, email, username, password, sso } = req.body;
 
+  console.log(domain, cftoken, redispassword, mysqlpassword, storageencryptionkey, secretsession, jwtSecret, email, username, password, sso);
+
   switch (name) {
     case "traefik":
       try {
@@ -44,10 +49,21 @@ router.post("/:name", async (req, res) => {
         await installDependents("traefik", "fileConfig.yml", {
           domain,
         });
-        await installApp("traefik-compose.yml", "traefik", {
+
+        let traefikInterpolationOptions = {
           domain,
           cftoken,
-        });
+          email,
+        };
+
+        if (!sso) {
+          const hash = await bcrypt.hash(password, saltRounds);
+          traefikInterpolationOptions["AUTH"] = `${username}:${hash.replace(/\$/g, "$$$$")}`;
+        }
+
+        console.log({ traefikInterpolationOptions });
+
+        await installApp("traefik-compose.yml", "traefik", traefikInterpolationOptions, true, sso);
         res.json({ error: false });
       } catch (err) {
         res.json({ error: true });
@@ -109,10 +125,19 @@ router.post("/:name", async (req, res) => {
         //   email,
         // });
 
-        await installApp("traefik-compose.yml", "traefik", {
+        let traefikInterpolationOptions = {
           domain,
           cftoken,
-        });
+          email,
+        };
+
+        if (sso) {
+          bcrypt.hash(password, saltRounds, function (err, hash) {
+            traefikInterpolationOptions["AUTH"] = `${username}:${hash}`;
+          });
+        }
+
+        await installApp("traefik-compose.yml", "traefik", traefikInterpolationOptions, true, sso);
 
         await installApp("authelia-compose.yml", "authelia", {
           redispassword,
@@ -150,7 +175,7 @@ router.post("/:name", async (req, res) => {
   }
 });
 
-const installApp = async (name, dir, interpolationObj) => {
+const installApp = async (name, dir, interpolationObj, traefik = false, sso = false) => {
   // Installs new core app, and injects user defined variables
   // Reads from file
   // Converts file to YAML
@@ -161,6 +186,16 @@ const installApp = async (name, dir, interpolationObj) => {
   try {
     const file = await readFile(join(__dirname, `../configs/${name}`), "utf8");
     const convertedFile = await yaml.parse(file);
+
+    if (traefik) {
+      if (sso) {
+        convertedFile.services.traefik.labels["traefik.http.routers.api.middlewares"] = "auth@file";
+      } else {
+        convertedFile.services.traefik.labels["traefik.http.middlewares.api.basicauth.users"] = "${AUTH}";
+        convertedFile.services.traefik.labels["traefik.http.routers.api.middlewares"] = "api";
+      }
+    }
+
     const interpolatedFile = interpolation.expand(convertedFile, interpolationObj);
 
     shell.mkdir("-p", `/compose/${dir}`);

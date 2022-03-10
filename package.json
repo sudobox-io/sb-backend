@@ -1,7 +1,9 @@
 {
+  "version": "0.1.0",
   "dependencies": {
     "argon2": "^0.28.4",
     "axios": "^0.21.2",
+    "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "docker-compose": "^0.23.13",
     "dockerode": "^3.3.0",
@@ -16,6 +18,7 @@
     "mongoose": "^5.13.3",
     "morgan": "^1.10.0",
     "nedb": "^1.8.0",
+    "pass": "^0.2.0",
     "shelljs": "^0.8.5",
     "tld-extract": "^2.0.1",
     "yaml": "^1.10.2"

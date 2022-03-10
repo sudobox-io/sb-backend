@@ -17,6 +17,7 @@ services:
       traefik.enable: true
     environment:
       DOCKER_HOST: dockersocket
+      CF_API_EMAIL: ${email}
       CF_DNS_API_TOKEN: ${cftoken}
     restart: unless-stopped
     depends_on:
