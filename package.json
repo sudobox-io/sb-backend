@@ -8,7 +8,7 @@
     "dockerode": "^3.3.0",
     "dockerode-compose": "^1.2.1",
     "dotenv": "^10.0.0",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "generate-password": "^1.7.0",
     "helmet": "^4.6.0",
     "interpolate-json": "^2.2.2",
