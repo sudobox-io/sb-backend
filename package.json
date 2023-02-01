@@ -14,7 +14,7 @@
     "interpolate-json": "^2.2.2",
     "ldapjs": "^2.3.2",
     "ldif": "^0.5.1",
-    "mongoose": "^5.13.3",
+    "mongoose": "^5.13.15",
     "morgan": "^1.10.0",
     "nedb": "^1.8.0",
     "pass": "^0.2.0",
